@@ -17,21 +17,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserControllerTest {
     private UserController userController;
     private Validator validator;
+    private User user;
 
     @BeforeEach
     void setUp() {
         userController = new UserController();
         validator = Validation.buildDefaultValidatorFactory().getValidator();
-    }
-
-    @Test
-    void createUser_WithValidUser_ShouldReturnUserWithId() {
-        User user = User.builder()
+        user = User.builder()
                 .email("test@example.com")
                 .login("test_user")
                 .birthday(LocalDate.now().minusYears(20))
                 .build();
+    }
 
+    @Test
+    void createUser_WithValidUser_ShouldReturnUserWithId() {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
@@ -41,12 +41,7 @@ public class UserControllerTest {
 
     @Test
     void testEmptyEmail() {
-        UserController userController = new UserController();
-        User user = User.builder()
-                .email("")
-                .login("testLogin")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
+        user.setEmail("");
 
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
@@ -56,12 +51,7 @@ public class UserControllerTest {
 
     @Test
     void testEmail() {
-        UserController userController = new UserController();
-        User user = User.builder()
-                .email("asts")
-                .login("testLogin")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
+        user.setEmail("asts");
 
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
@@ -71,12 +61,7 @@ public class UserControllerTest {
 
     @Test
     void testEmptyLogin() {
-        UserController userController = new UserController();
-        User user = User.builder()
-                .email("test@example.com")
-                .login("")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
+        user.setLogin("");
 
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
@@ -86,27 +71,14 @@ public class UserControllerTest {
 
     @Test
     void testEmptyName() {
-        UserController userController = new UserController();
-        User user = User.builder()
-                .email("test@example.com")
-                .login("testLogin")
-                .birthday(LocalDate.of(1990, 1, 1))
-                .build();
-
         User createdUser = userController.create(user);
 
-        assertThat(createdUser.getName()).isEqualTo("testLogin");
+        assertThat(createdUser.getName()).isEqualTo("test_user");
     }
 
     @Test
     void testFutureBirthday() {
-        UserController userController = new UserController();
-        User user = User.builder()
-                .email("test@example.com")
-                .login("testLogin")
-                .name("Test User")
-                .birthday(LocalDate.now().plusDays(1))
-                .build();
+        user.setBirthday(LocalDate.now().plusDays(1));
 
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
@@ -116,12 +88,6 @@ public class UserControllerTest {
 
     @Test
     void changeUser() {
-        User user = User.builder()
-                .email("test@example.com")
-                .login("test_user")
-                .birthday(LocalDate.now().minusYears(20))
-                .build();
-
         User createdUser = userController.create(user);
         createdUser.setName("test");
         User changedUser = userController.change(createdUser);
