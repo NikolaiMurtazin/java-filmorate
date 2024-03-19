@@ -8,11 +8,12 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Builder
 public class Film {
-    private Integer id;
+    private Long filmId;
 
     @NotBlank(message = "Значение не может быть пустым")
     private String name;
@@ -27,4 +28,18 @@ public class Film {
     @NotNull
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
+
+    private Set<Long> likes;
+
+    public void addLike(User user) {
+        likes.add(user.getUserId());
+    }
+
+    public void removeLike(User user) {
+        likes.remove(user.getUserId());
+    }
+
+    public int sizeLikes() {
+        return likes.size();
+    }
 }

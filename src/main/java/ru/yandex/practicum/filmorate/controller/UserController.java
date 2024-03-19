@@ -1,60 +1,61 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.ValidationException;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.Collection;
 
 @RestController
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private Integer userId = 0;
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
-    public ArrayList<User> findAll() {
-        return new ArrayList<>(users.values());
+    public Collection<User> findAll() {
+        return userService.findAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-       log.info("Получен запрос на добавление нового пользователя");
-
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-
-        user.setId(generateId());
-        users.put(user.getId(), user);
-
-        log.info(String.format("Пользователь %s  с id = %d успешно добавлен", user.getName(), user.getId()));
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User change(@Valid @RequestBody User user) {
-        log.info("Получен запрос на обновление пользователя");
-
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException("Такого целочисленного идентификатор нет в списке");
-        }
-
-        if (user.getLogin().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-
-        users.put(user.getId(), user);
-
-        log.info(String.format("Пользователь %s  с id = %d успешно обновлен", user.getName(), user.getId()));
-        return user;
+        return userService.change(user);
     }
 
-    private Integer generateId() {
-        return ++userId;
+    @PutMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public User addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        return userService.addToFriends(userId, friendId);
     }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public User removeFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        return userService.removeFromFriends(userId, friendId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public Collection<User> getFriends(@PathVariable Long userId) {
+        return userService.getFriends(userId);
+    }
+
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable Long userId, @PathVariable Long otherId) {
+        return userService.findMutualFriends(userId, otherId);
+    }
+
 }

@@ -8,11 +8,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Builder
 public class User {
-    private Integer id;
+    private Long userId;
 
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Email(message = "Электронная почта должна содержать символ @")
@@ -26,4 +27,14 @@ public class User {
     @NotNull
     @Past(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
+
+    private Set<Long> friends;
+
+    public void addFriend(User friend) {
+        friends.add(friend.getUserId());
+    }
+
+    public void removeFriend(User friend) {
+        friends.remove(friend.getUserId());
+    }
 }
