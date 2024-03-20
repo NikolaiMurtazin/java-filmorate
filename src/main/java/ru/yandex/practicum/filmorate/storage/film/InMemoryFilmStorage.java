@@ -20,7 +20,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film create(Film film) {
+    public Film createFilm(Film film) {
 
         checkMoviesBirthdayDate(film.getReleaseDate());
 
@@ -31,7 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film change(Film film) {
+    public Film changeFilm(Film film) {
 
         if (!films.containsKey(film.getFilmId())) {
             throw new ValidationException("Такого id нет в списке");

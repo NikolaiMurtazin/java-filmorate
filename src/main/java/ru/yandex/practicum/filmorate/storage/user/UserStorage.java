@@ -6,11 +6,19 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface UserStorage {
-    Collection<User> findAll();
+    Collection<User> getAllUsers();
 
-    User create(User user);
+    User createUser(User user);
 
-    User change(User user);
+    User changeUser(User user);
+
+    Collection<User> findMutualFriends(Long userId, Long friendId);
+
+    Collection<User> getFriends(Long userId);
+
+    User addToFriends(Long userId, Long friendId);
+
+    User removeFromFriends(Long userId, Long friendId);
 
     Map<Long, User> getUsers();
 }

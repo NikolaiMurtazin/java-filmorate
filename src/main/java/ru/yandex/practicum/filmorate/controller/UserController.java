@@ -22,18 +22,24 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() {
-        return userService.findAll();
+    public Collection<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return userService.create(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User change(@Valid @RequestBody User user) {
-        return userService.change(user);
+        return userService.changeUser(user);
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public User removeUser(@PathVariable Long userId) {
+        return userService.removeUser(userId);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")

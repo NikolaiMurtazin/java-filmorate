@@ -37,4 +37,16 @@ public class User {
     public void removeFriend(User friend) {
         friends.remove(friend.getUserId());
     }
+
+    private Set<Long> likeFilms;
+
+    public void addFilm(Film film) {
+        likeFilms.add(film.getFilmId());
+    }
+
+    public void removeFilm(Film film) {
+        likeFilms.remove(film.getFilmId());
+    }
+
+
 }
