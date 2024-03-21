@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 public class User {
-    private Long userId;
+    private Long id;
 
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Email(message = "Электронная почта должна содержать символ @")
@@ -31,22 +31,10 @@ public class User {
     private Set<Long> friends;
 
     public void addFriend(User friend) {
-        friends.add(friend.getUserId());
+        friends.add(friend.getId());
     }
 
     public void removeFriend(User friend) {
-        friends.remove(friend.getUserId());
+        friends.remove(friend.getId());
     }
-
-    private Set<Long> likeFilms;
-
-    public void addFilm(Film film) {
-        likeFilms.add(film.getFilmId());
-    }
-
-    public void removeFilm(Film film) {
-        likeFilms.remove(film.getFilmId());
-    }
-
-
 }

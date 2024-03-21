@@ -22,8 +22,8 @@ public class FilmService {
         this.userStorage = userStorage1;
     }
 
-    public Collection<Film> findAll() {
-        return filmStorage.findAll();
+    public Collection<Film> getAllFilms() {
+        return filmStorage.getAllFilms();
     }
 
     public Film createFilm(Film film) {
@@ -34,42 +34,25 @@ public class FilmService {
         return filmStorage.changeFilm(film);
     }
 
-    public Film removeFilm(Long filmId) {
-        Film film = filmStorage.getFilms().get(filmId);
-        if (film != null) {
-            for (Long userId : film.getLikes()) {
-                User user = userStorage.getUsers().get(userId);
-                user.removeFilm(film);
-            }
-            filmStorage.getFilms().remove(filmId);
-        }
-        return film;
-    }
-
     public Collection<Film> getPopularFilms(Integer count) {
-        return filmStorage.getFilms().values().stream()
+
+        return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt(Film::sizeLikes).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
     public Film likeFilm(Long filmId, Long userId) {
-        Film film = filmStorage.getFilms().get(filmId);
-        User user = userStorage.getUsers().get(userId);
-        if (film != null && user != null) {
-            film.addLike(user);
-            user.addFilm(film);
-        }
+        Film film = filmStorage.getFilm(filmId);
+        User user = userStorage.getUser(userId);
+        film.addLike(user);
         return film;
     }
 
     public Film unlikeFilm(Long filmId, Long userId) {
-        Film film = filmStorage.getFilms().get(filmId);
-        User user = userStorage.getUsers().get(userId);
-        if (film != null && user != null) {
-            film.removeLike(user);
-            user.removeFilm(film);
-        }
+        Film film = filmStorage.getFilm(filmId);
+        User user = userStorage.getUser(userId);
+        film.removeLike(user);
         return film;
     }
 }

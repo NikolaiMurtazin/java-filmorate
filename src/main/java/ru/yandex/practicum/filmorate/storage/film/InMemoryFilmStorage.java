@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -15,7 +16,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
 
     @Override
-    public Collection<Film> findAll() {
+    public Collection<Film> getAllFilms() {
         return films.values();
     }
 
@@ -24,8 +25,8 @@ public class InMemoryFilmStorage implements FilmStorage {
 
         checkMoviesBirthdayDate(film.getReleaseDate());
 
-        film.setFilmId(generateId());
-        films.put(film.getFilmId(), film);
+        film.setId(generateId());
+        films.put(film.getId(), film);
 
         return film;
     }
@@ -33,20 +34,24 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film changeFilm(Film film) {
 
-        if (!films.containsKey(film.getFilmId())) {
+        if (!films.containsKey(film.getId())) {
             throw new ValidationException("Такого id нет в списке");
         }
 
         checkMoviesBirthdayDate(film.getReleaseDate());
 
-        films.put(film.getFilmId(), film);
+        films.put(film.getId(), film);
 
         return film;
     }
 
     @Override
-    public HashMap<Long, Film> getFilms() {
-        return films;
+    public Film getFilm(Long filmId) {
+        Film film = films.get(this.filmId);
+        if (film == null) {
+            throw new NotFoundException("User не найден.");
+        }
+        return film;
     }
 
     private Long generateId() {

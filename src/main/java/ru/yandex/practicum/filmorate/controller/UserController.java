@@ -36,12 +36,6 @@ public class UserController {
         return userService.changeUser(user);
     }
 
-    @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public User removeUser(@PathVariable Long userId) {
-        return userService.removeUser(userId);
-    }
-
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.CREATED)
     public User addFriend(@PathVariable Long userId, @PathVariable Long friendId) {

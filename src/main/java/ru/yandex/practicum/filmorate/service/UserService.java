@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -13,12 +11,9 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
 
-    private final FilmStorage filmStorage;
-
     @Autowired
-    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.filmStorage = filmStorage;
     }
 
     public Collection<User> getAllUsers() {
@@ -33,34 +28,47 @@ public class UserService {
       return userStorage.changeUser(user);
     }
 
-    public User removeUser(Long userId) {
-        User user = userStorage.getUsers().get(userId);
-        if (user != null) {
-            for (Long friendId : user.getFriends()) {
-                User friend = userStorage.getUsers().get(friendId);
-                friend.getFriends().remove(userId);
-            }
-            for (Long filmId : user.getLikeFilms()) {
-                Film film = filmStorage.getFilms().get(filmId);
-                film.getLikes().remove(userId);
-            }
+    public Collection<User> findMutualFriends(Long userId, Long friendId) {
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+
+        Set<Long> allFriends = user.getFriends();
+        allFriends.retainAll(friend.getFriends());
+
+        List<User> mutualFriends = new ArrayList<>();
+
+        for (Long numberFriend : allFriends) {
+            mutualFriends.add(userStorage.getUser(numberFriend));
+        }
+        return mutualFriends;
+    }
+
+    public Collection<User> getFriends(Long userId) {
+        Set<Long> idFriends = userStorage.getUser(userId).getFriends();
+        List<User> friends = new ArrayList<>();
+        for (Long numberFriend : idFriends) {
+            friends.add(userStorage.getUser(numberFriend));
+        }
+        return friends;
+    }
+
+    public User addToFriends(Long userId, Long friendId) {
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        if (user != null && friend != null) {
+            user.addFriend(friend);
+            friend.addFriend(user);
         }
         return user;
     }
 
-    public Collection<User> findMutualFriends(Long userId, Long friendId) {
-        return userStorage.findMutualFriends(userId, friendId);
-    }
-
-    public Collection<User> getFriends(Long userId) {
-        return userStorage.getFriends(userId);
-    }
-
-    public User addToFriends(Long userId, Long friendId) {
-        return userStorage.addToFriends(userId, friendId);
-    }
-
     public User removeFromFriends(Long userId, Long friendId) {
-        return userStorage.removeFromFriends(userId, friendId);
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        if (user != null && friend != null) {
+            user.removeFriend(friend);
+            friend.removeFriend(user);
+        }
+        return user;
     }
 }

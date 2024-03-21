@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 public class Film {
-    private Long filmId;
+    private Long id;
 
     @NotBlank(message = "Значение не может быть пустым")
     private String name;
@@ -32,11 +32,11 @@ public class Film {
     private Set<Long> likes;
 
     public void addLike(User user) {
-        likes.add(user.getUserId());
+        likes.add(user.getId());
     }
 
     public void removeLike(User user) {
-        likes.remove(user.getUserId());
+        likes.remove(user.getId());
     }
 
     public int sizeLikes() {

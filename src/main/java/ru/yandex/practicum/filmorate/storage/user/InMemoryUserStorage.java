@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.ValidationException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -23,15 +26,15 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
 
-        user.setUserId(generateId());
-        users.put(user.getUserId(), user);
+        user.setId(generateId());
+        users.put(user.getId(), user);
 
         return user;
     }
 
     @Override
     public User changeUser(User user) {
-        if (!users.containsKey(user.getUserId())) {
+        if (!users.containsKey(user.getId())) {
             throw new ValidationException("Такого целочисленного идентификатор нет в списке");
         }
 
@@ -39,70 +42,24 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
 
-        users.put(user.getUserId(), user);
+        users.put(user.getId(), user);
 
         return user;
     }
 
     @Override
-    public Collection<User> findMutualFriends(Long userId, Long friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
-
-        Set<Long> allFriends = new HashSet<>();
-        allFriends.addAll(user.getFriends());
-        allFriends.addAll(friend.getFriends());
-
-        List<User> mutualFriends = new ArrayList<>();
-
-        for (Long numberFriend : allFriends) {
-            if (users.containsKey(numberFriend)) {
-                mutualFriends.add(users.get(numberFriend));
-            }
-        }
-        return mutualFriends;
-    }
-
-    @Override
-    public Collection<User> getFriends(Long userId) {
-        Set<Long> idFriends = users.get(userId).getFriends();
-        List<User> friends = new ArrayList<>();
-        for (Long numberFriend : idFriends) {
-            if (users.containsKey(numberFriend)) {
-                friends.add(users.get(numberFriend));
-            }
-        }
-        return friends;
-    }
-
-    @Override
-    public User addToFriends(Long userId, Long friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
-        if (user != null && friend != null) {
-            user.addFriend(friend);
-            friend.addFriend(user);
+    public User getUser(Long userId) {
+        User user = users.get(this.userId);
+        if (user == null) {
+            throw new NotFoundException("User не найден.");
         }
         return user;
-    }
-
-    @Override
-    public User removeFromFriends(Long userId, Long friendId) {
-        User user = users.get(userId);
-        User friend = users.get(friendId);
-        if (user != null && friend != null) {
-            user.removeFriend(friend);
-            friend.removeFriend(user);
-        }
-        return user;
-    }
-
-    @Override
-    public HashMap<Long, User> getUsers() {
-        return users;
     }
 
     private Long generateId() {
         return ++userId;
     }
+
+
+
 }
