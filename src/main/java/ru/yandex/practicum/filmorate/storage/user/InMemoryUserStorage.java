@@ -49,7 +49,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(Long userId) {
-        User user = users.get(this.userId);
+        User user = users.get(userId);
         if (user == null) {
             throw new NotFoundException("User не найден.");
         }
@@ -59,7 +59,4 @@ public class InMemoryUserStorage implements UserStorage {
     private Long generateId() {
         return ++userId;
     }
-
-
-
 }

@@ -35,7 +35,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film changeFilm(Film film) {
 
         if (!films.containsKey(film.getId())) {
-            throw new ValidationException("Такого id нет в списке");
+            throw new NotFoundException("Такого id нет в списке");
         }
 
         checkMoviesBirthdayDate(film.getReleaseDate());
@@ -47,9 +47,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Long filmId) {
-        Film film = films.get(this.filmId);
+        Film film = films.get(filmId);
         if (film == null) {
-            throw new NotFoundException("User не найден.");
+            throw new NotFoundException("Film не найден.");
         }
         return film;
     }
