@@ -58,20 +58,16 @@ public class UserService {
     public User addToFriends(Long userId, Long friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
-        if (user != null && friend != null) {
-            user.addFriend(friend);
-            friend.addFriend(user);
-        }
+        user.addFriend(friend);
+        friend.addFriend(user);
         return user;
     }
 
     public User removeFromFriends(Long userId, Long friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
-        if (user != null && friend != null) {
-            user.removeFriend(friend);
-            friend.removeFriend(user);
-        }
+        user.removeFriend(friend);
+        friend.removeFriend(user);
         return user;
     }
 }
