@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -14,14 +16,14 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class UserControllerTest {
+class UserControllerTest {
     private UserController userController;
     private Validator validator;
     private User user;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
         user = User.builder()
                 .email("test@example.com")
@@ -35,7 +37,7 @@ public class UserControllerTest {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(0);
+        assertThat(violations).isEmpty();
         assertThat(user).isEqualTo(createdUser);
     }
 
@@ -46,7 +48,7 @@ public class UserControllerTest {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).hasSize(1);
     }
 
     @Test
@@ -56,7 +58,7 @@ public class UserControllerTest {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).hasSize(1);
     }
 
     @Test
@@ -66,7 +68,7 @@ public class UserControllerTest {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).hasSize(1);
     }
 
     @Test
@@ -83,7 +85,7 @@ public class UserControllerTest {
         User createdUser = userController.create(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).hasSize(1);
     }
 
     @Test
@@ -94,7 +96,7 @@ public class UserControllerTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
-        assertThat(violations.size()).isEqualTo(0);
+        assertThat(violations).isEmpty();
         assertThat(user).isEqualTo(changedUser);
     }
 }
