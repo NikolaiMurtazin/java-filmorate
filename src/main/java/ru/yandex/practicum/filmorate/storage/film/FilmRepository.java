@@ -15,8 +15,6 @@ public interface FilmRepository {
 
     Film update(Film film);
 
-    Film getFilm(Long filmIf);
-
     void likeFilm(Film film, User user);
 
     void unlikeFilm(Film film, User user);

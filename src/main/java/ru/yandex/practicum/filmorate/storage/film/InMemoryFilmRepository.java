@@ -50,15 +50,6 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
-    public Film getFilm(Long filmId) {
-        Film film = filmMap.get(filmId);
-        if (film == null) {
-            throw new NotFoundException("Film не найден.");
-        }
-        return film;
-    }
-
-    @Override
     public void likeFilm(Film film, User user) {
         Set<Long> filmIds = filmLikeIds.computeIfAbsent(film.getId(), id -> new HashSet<>());
         filmIds.add(user.getId());
