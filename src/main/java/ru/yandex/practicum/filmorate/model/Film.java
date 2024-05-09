@@ -1,21 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+import ru.yandex.practicum.filmorate.validator.RealiseDateConstraint;
+import ru.yandex.practicum.filmorate.validator.Update;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
-@Jacksonized
 public class Film {
+    @NotNull(groups = Update.class)
     private Long id;
 
     @NotBlank(message = "Значение не может быть пустым")
@@ -26,24 +25,10 @@ public class Film {
     private String description;
 
     @NotNull
+    @RealiseDateConstraint
     private LocalDate releaseDate;
 
     @NotNull
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-
-    @Builder.Default
-    private Set<Long> likes = new HashSet<>();
-
-    public void addLike(User user) {
-        likes.add(user.getId());
-    }
-
-    public void removeLike(User user) {
-        likes.remove(user.getId());
-    }
-
-    public int sizeLikes() {
-        return likes.size();
-    }
 }
