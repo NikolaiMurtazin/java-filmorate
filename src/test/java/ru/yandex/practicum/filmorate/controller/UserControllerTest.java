@@ -1,15 +1,15 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserRepository;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -23,7 +23,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
+        userController = new UserController(new UserService(new InMemoryUserRepository()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
         user = User.builder()
                 .email("test@example.com")
@@ -33,8 +33,8 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_WithValidUser_ShouldReturnUserWithId() {
-        User createdUser = userController.create(user);
+    void saveUser_WithValidUser_ShouldReturnUserWithId() {
+        User createdUser = userController.save(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).isEmpty();
@@ -45,7 +45,7 @@ class UserControllerTest {
     void testEmptyEmail() {
         user.setEmail("");
 
-        User createdUser = userController.create(user);
+        User createdUser = userController.save(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).hasSize(1);
@@ -55,7 +55,7 @@ class UserControllerTest {
     void testEmail() {
         user.setEmail("asts");
 
-        User createdUser = userController.create(user);
+        User createdUser = userController.save(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).hasSize(1);
@@ -65,7 +65,7 @@ class UserControllerTest {
     void testEmptyLogin() {
         user.setLogin("");
 
-        User createdUser = userController.create(user);
+        User createdUser = userController.save(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).hasSize(1);
@@ -73,7 +73,7 @@ class UserControllerTest {
 
     @Test
     void testEmptyName() {
-        User createdUser = userController.create(user);
+        User createdUser = userController.save(user);
 
         assertThat(createdUser.getName()).isEqualTo("test_user");
     }
@@ -82,21 +82,21 @@ class UserControllerTest {
     void testFutureBirthday() {
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        User createdUser = userController.create(user);
+        User createdUser = userController.save(user);
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).hasSize(1);
     }
 
     @Test
-    void changeUser() {
-        User createdUser = userController.create(user);
+    void updateUser() {
+        User createdUser = userController.save(user);
         createdUser.setName("test");
-        User changedUser = userController.change(createdUser);
+        userController.update(createdUser);
 
         Set<ConstraintViolation<User>> violations = validator.validate(createdUser);
 
         assertThat(violations).isEmpty();
-        assertThat(user).isEqualTo(changedUser);
+        assertThat(user).isEqualTo(createdUser);
     }
 }
