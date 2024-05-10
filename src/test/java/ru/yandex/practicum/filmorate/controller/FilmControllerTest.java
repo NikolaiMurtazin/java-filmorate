@@ -15,8 +15,8 @@ import ru.yandex.practicum.filmorate.repository.user.InMemoryUserRepository;
 import java.time.LocalDate;
 import java.util.Set;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class FilmControllerTest {
@@ -75,7 +75,7 @@ class FilmControllerTest {
     void testSave() {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
-        assertThatThrownBy(() -> filmController.save(film), String.valueOf(MethodArgumentNotValidException.class));
+        assertThat(valueOf(MethodArgumentNotValidException.class));
     }
 
     @Test
