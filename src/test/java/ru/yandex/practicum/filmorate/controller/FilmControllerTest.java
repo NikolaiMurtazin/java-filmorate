@@ -6,11 +6,11 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmRepository;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserRepository;
+import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmRepository;
+import ru.yandex.practicum.filmorate.repository.user.InMemoryUserRepository;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -75,7 +75,7 @@ class FilmControllerTest {
     void testSave() {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
 
-        assertThatThrownBy(() -> filmController.save(film), String.valueOf(ValidationException.class));
+        assertThatThrownBy(() -> filmController.save(film), String.valueOf(MethodArgumentNotValidException.class));
     }
 
     @Test

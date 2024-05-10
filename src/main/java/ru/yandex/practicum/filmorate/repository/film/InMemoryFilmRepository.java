@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.repository.film;
 
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -26,8 +26,8 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
-    public Optional<Film> get(long filmId) { //=
-        return Optional.of(filmMap.get(filmId));
+    public Film get(long filmId) { //=
+        return filmMap.get(filmId);
     }
 
     @Override
@@ -50,16 +50,19 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
-    public void likeFilm(Film film, User user) {
+    public Film likeFilm(Film film, User user) {
         Set<Long> filmIds = filmLikeIds.computeIfAbsent(film.getId(), id -> new HashSet<>());
         filmIds.add(user.getId());
 
+        return film;
     }
 
     @Override
-    public void unlikeFilm(Film film, User user) {
+    public Film unlikeFilm(Film film, User user) {
         Set<Long> filmIds = filmLikeIds.computeIfAbsent(film.getId(), id -> new HashSet<>());
         filmIds.remove(user.getId());
+
+        return film;
     }
 
     @Override

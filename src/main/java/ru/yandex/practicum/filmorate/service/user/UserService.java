@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Collection;
 
@@ -20,8 +20,11 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public User get(long userId) {
-        return userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
+        return user;
     }
 
     @Override
@@ -34,7 +37,9 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public User update(User user) {
-        if (userRepository.get(user.getId()).isEmpty()) {
+        long userId = user.getId();
+        final User saved = userRepository.get(userId);
+        if (saved == null) {
             throw new NotFoundException("User not found");
         }
 
@@ -43,37 +48,53 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        User friend = userRepository.get(friendId)
-                .orElseThrow(() -> new NotFoundException("Friend not found with " + friendId));
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
+
+        final User friend = userRepository.get(friendId);
+        if (friend == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
         userRepository.addFriend(user, friend);
     }
 
     @Override
     public void deleteFriend(long userId, long friendId) {
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        User friend = userRepository.get(friendId)
-                .orElseThrow(() -> new NotFoundException("Friend not found with " + friendId));
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
+
+        final User friend = userRepository.get(friendId);
+        if (friend == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
         userRepository.deleteFriend(user, friend);
     }
 
     @Override
     public Collection<User> getFriends(long userId) {
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
 
         return userRepository.getFriends(user);
     }
 
     @Override
     public Collection<User> getCommonFriends(long userId, long friendId) {
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        User friend = userRepository.get(friendId)
-                .orElseThrow(() -> new NotFoundException("Friend not found with " + friendId));
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
 
+        final User friend = userRepository.get(friendId);
+        if (friend == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
         return userRepository.getCommonFriends(user, friend);
     }
 }

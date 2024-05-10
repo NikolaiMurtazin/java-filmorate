@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -6,11 +6,12 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -27,8 +28,8 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> get(long userId) { //=
-        return Optional.of(userMap.get(userId));
+    public User get(long userId) { //=
+        return userMap.get(userId);
     }
 
     @Override
@@ -87,12 +88,18 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public Collection<User> getFriends(User user) {
-        Set<Long> idFriends = userFriendIds.get(user.getId());
-        List<User> friends = new ArrayList<>();
-        for (Long numberFriend : idFriends) {
-            friends.add(userMap.get(numberFriend));
+        if (user == null || !userMap.containsKey(user.getId())) {
+            return Collections.emptyList();
         }
-        return friends;
+
+        Set<Long> idFriends = userFriendIds.getOrDefault(user.getId(), Collections.emptySet());
+        if (idFriends.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return idFriends.stream()
+                .map(userMap::get)
+                .collect(Collectors.toList());
     }
 
     private Long generateId() {

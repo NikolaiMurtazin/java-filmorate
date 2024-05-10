@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmRepository;
-import ru.yandex.practicum.filmorate.storage.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.Collection;
 
@@ -24,8 +24,12 @@ public class FilmService implements FilmServiceInterface {
 
     @Override
     public Film get(long filmId) {
-        return filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + filmId));
+        final Film film = filmRepository.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("User not found with " + filmId);
+        }
+
+        return film;
     }
 
     @Override
@@ -35,7 +39,9 @@ public class FilmService implements FilmServiceInterface {
 
     @Override
     public Film update(Film film) {
-        if (filmRepository.get(film.getId()).isEmpty()) {
+        long filmId = film.getId();
+        final Film saved = filmRepository.get(filmId);
+        if (saved == null) {
             throw new NotFoundException("Film not found");
         }
 
@@ -43,23 +49,31 @@ public class FilmService implements FilmServiceInterface {
     }
 
     @Override
-    public void likeFilm(Long filmId, Long userId) {
-        Film film = filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("Film not found with " + filmId));
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
+    public Film likeFilm(long filmId, long userId) {
+        final Film film = filmRepository.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("User not found with " + filmId);
+        }
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
 
-        filmRepository.likeFilm(film, user);
+        return filmRepository.likeFilm(film, user);
     }
 
     @Override
-    public void unlikeFilm(Long filmId, Long userId) {
-        Film film = filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("Film not found with " + filmId));
-        User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
+    public Film unlikeFilm(long filmId, long userId) {
+        final Film film = filmRepository.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("User not found with " + filmId);
+        }
+        final User user = userRepository.get(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with " + userId);
+        }
 
-        filmRepository.unlikeFilm(film, user);
+        return filmRepository.unlikeFilm(film, user);
     }
 
     @Override
