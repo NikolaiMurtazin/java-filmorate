@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserServiceInterface;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validator.Update;
 
 import java.util.Collection;
@@ -24,7 +24,7 @@ import java.util.Collection;
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
-    private final UserServiceInterface userService;
+    private final UserService userService;
 
     @GetMapping()
     Collection<User> getAll() {

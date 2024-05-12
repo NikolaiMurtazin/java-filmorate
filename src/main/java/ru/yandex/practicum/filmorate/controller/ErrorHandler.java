@@ -5,14 +5,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.exception.HandleException;
-import ru.yandex.practicum.filmorate.exception.MethodArgumentNotValidException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
@@ -27,12 +32,13 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    // Что с этим обработчиком делать? Если оставить у него Exeption, как в примере у наставника, то он перекрывает
-    // ошибки, предназначенные для handleMethodArgumentNotValidException и выводит 500, хотя должно быть 400.
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(final HandleException e) {
-        log.warn("Error", e);
-        return new ErrorResponse(e.getMessage());
+    public ErrorResponse handleException(final Exception e) {
+        log.error("Error", e);
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+        e.printStackTrace(pw);
+        errorResponse.setStackTrace(sw.toString());
+        return errorResponse;
     }
 }

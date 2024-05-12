@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,11 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     @Override
-    public Film get(long filmId) { //=
-        return filmMap.get(filmId);
+    public Optional<Film> get(long filmId) {
+        if (!filmMap.containsKey(filmId)) {
+            throw new NotFoundException("ID not found in the List");
+        }
+        return Optional.of(filmMap.get(filmId));
     }
 
     @Override
@@ -39,10 +43,6 @@ public class InMemoryFilmRepository implements FilmRepository {
 
     @Override
     public Film update(Film film) {
-        if (!filmMap.containsKey(film.getId())) {
-            throw new NotFoundException("ID not found in the List");
-        }
-
         filmMap.put(film.getId(), film);
 
         return film;

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.validator.Update;
 
 import java.util.Collection;
@@ -25,17 +25,17 @@ import java.util.Collection;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmService filmService;
+    private final FilmServiceImpl filmServiceImpl;
 
     @GetMapping
     public Collection<Film> getAll() {
         log.info("==> Запрос на вывод всех фильмов");
-        return filmService.getAll();
+        return filmServiceImpl.getAll();
     }
 
     @GetMapping("/{filmId}")
     Film get(@PathVariable long filmId) {
-        Film film = filmService.get(filmId);
+        Film film = filmServiceImpl.get(filmId);
         log.info("==> Запрос на вывод фильма: {}", film);
         return film;
     }
@@ -43,30 +43,30 @@ public class FilmController {
     @PostMapping
     public Film save(@Valid @RequestBody Film film) {
         log.info("==> Запрос на добавление фильма: {}", film);
-        return filmService.save(film);
+        return filmServiceImpl.save(film);
     }
 
     @PutMapping
     public Film update(@Validated(Update.class) @RequestBody Film film) {
         log.info("==> Запрос на изменение фильма: {}", film);
-        return filmService.update(film);
+        return filmServiceImpl.update(film);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     public Film likeFilm(@PathVariable("filmId") long filmId, @PathVariable("userId") long userId) {
         log.info("==> Запрос на проставление лайка фильма");
-        return filmService.likeFilm(filmId, userId);
+        return filmServiceImpl.likeFilm(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public Film unlikeFilm(@PathVariable("filmId") long filmId, @PathVariable("userId") long userId) {
         log.info("==> Запрос на удаления лайка фильма");
-        return filmService.unlikeFilm(filmId, userId);
+        return filmServiceImpl.unlikeFilm(filmId, userId);
     }
 
     @GetMapping("/popular")
     public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         log.info("==> Запрос на вывод популярных фильмов");
-        return filmService.getPopularFilms(count);
+        return filmServiceImpl.getPopularFilms(count);
     }
 }

@@ -3,11 +3,12 @@ package ru.yandex.practicum.filmorate.repository.user;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface UserRepository {
     Collection<User> getAll();
 
-    User get(long userId);
+    Optional<User> get(long userId);
 
     User create(User user);
 

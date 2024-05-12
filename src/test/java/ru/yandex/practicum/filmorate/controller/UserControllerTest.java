@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.repository.user.InMemoryUserRepository;
 
 import java.time.LocalDate;
@@ -23,7 +23,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(new UserService(new InMemoryUserRepository()));
+        userController = new UserController(new UserServiceImpl(new InMemoryUserRepository()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
         user = User.builder()
                 .email("test@example.com")

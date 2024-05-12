@@ -6,9 +6,8 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmRepository;
 import ru.yandex.practicum.filmorate.repository.user.InMemoryUserRepository;
 
@@ -26,7 +25,7 @@ class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmRepository(), new InMemoryUserRepository()));
+        filmController = new FilmController(new FilmServiceImpl(new InMemoryFilmRepository(), new InMemoryUserRepository()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
         film = Film.builder()
                 .name("Test Film")

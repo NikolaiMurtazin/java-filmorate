@@ -10,6 +10,8 @@ import lombok.Setter;
 public class ErrorResponse {
     String message;
 
+    String stackTrace;
+
     public ErrorResponse(String message) {
         this.message = message;
     }
