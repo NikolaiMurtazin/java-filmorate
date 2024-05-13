@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.film;
 
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -27,10 +26,7 @@ public class InMemoryFilmRepository implements FilmRepository {
 
     @Override
     public Optional<Film> get(long filmId) {
-        if (!filmMap.containsKey(filmId)) {
-            throw new NotFoundException("ID not found in the List");
-        }
-        return Optional.of(filmMap.get(filmId));
+        return Optional.ofNullable(filmMap.get(filmId));
     }
 
     @Override

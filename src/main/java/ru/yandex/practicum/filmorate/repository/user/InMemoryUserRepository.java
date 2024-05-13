@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -30,10 +29,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public Optional<User> get(long userId) {
-        if (!userMap.containsKey(userId)) {
-            throw new NotFoundException("ID not found in the List");
-        }
-        return Optional.of(userMap.get(userId));
+        return Optional.ofNullable(userMap.get(userId));
     }
 
     @Override
@@ -46,10 +42,6 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User update(User user) {
-        if (!userMap.containsKey(user.getId())) {
-            throw new NotFoundException("ID not found in the List");
-        }
-
         if (user.getLogin().isEmpty()) {
             user.setName(user.getLogin());
         }
