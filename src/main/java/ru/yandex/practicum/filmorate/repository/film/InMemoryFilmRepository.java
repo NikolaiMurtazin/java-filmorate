@@ -63,7 +63,7 @@ public class InMemoryFilmRepository implements FilmRepository {
     @Override
     public Collection<Film> getPopularFilms(int count) {
         return filmLikeIds.entrySet().stream()
-                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size())) // Сортировка по количеству лайков
+                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue().size(), entry1.getValue().size()))
                 .map(entry -> filmMap.get(entry.getKey()))
                 .limit(count)
                 .collect(Collectors.toList());
