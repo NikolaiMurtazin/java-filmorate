@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.filmLike.FilmLikeService;
 import ru.yandex.practicum.filmorate.validator.Update;
 
 import java.util.Collection;
@@ -26,47 +29,54 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
+    private final FilmLikeService likeFilmService;
 
     @GetMapping
-    public Collection<Film> getAll() {
+    public ResponseEntity<Collection<Film>> getAll() {
         log.info("==> Запрос на вывод всех фильмов");
-        return filmService.getAll();
+        Collection<Film> films = filmService.getAll();
+        return ResponseEntity.ok(films);
     }
 
     @GetMapping("/{filmId}")
-    Film get(@PathVariable long filmId) {
-        Film film = filmService.get(filmId);
-        log.info("==> Запрос на вывод фильма: {}", film);
-        return film;
+    public ResponseEntity<Film> getById(@PathVariable long filmId) {
+        log.info("==> Запрос на вывод фильма с ID: {}", filmId);
+        Film film = filmService.getById(filmId);
+        return ResponseEntity.ok(film);
     }
 
     @PostMapping
-    public Film save(@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> create(@Valid @RequestBody Film film) {
         log.info("==> Запрос на добавление фильма: {}", film);
-        return filmService.save(film);
+        Film createdFilm = filmService.create(film);
+        return new ResponseEntity<>(createdFilm, HttpStatus.CREATED);
     }
 
     @PutMapping
-    public Film update(@Validated(Update.class) @RequestBody Film film) {
+    public ResponseEntity<Film> update(@Validated(Update.class) @RequestBody Film film) {
         log.info("==> Запрос на изменение фильма: {}", film);
-        return filmService.update(film);
+        Film updatedFilm = filmService.update(film);
+        return ResponseEntity.ok(updatedFilm);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public Film likeFilm(@PathVariable("filmId") long filmId, @PathVariable("userId") long userId) {
-        log.info("==> Запрос на проставление лайка фильма");
-        return filmService.likeFilm(filmId, userId);
+    public ResponseEntity<Void> addLikeToFilm(@PathVariable long filmId, @PathVariable long userId) {
+        log.info("==> Запрос на проставление лайка фильму с ID: {} от пользователя с ID: {}", filmId, userId);
+        likeFilmService.addLikeToFilm(filmId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public Film unlikeFilm(@PathVariable("filmId") long filmId, @PathVariable("userId") long userId) {
-        log.info("==> Запрос на удаления лайка фильма");
-        return filmService.unlikeFilm(filmId, userId);
+    public ResponseEntity<Void> deleteLikeFromFilm(@PathVariable long filmId, @PathVariable long userId) {
+        log.info("==> Запрос на удаление лайка фильма с ID: {} пользователем с ID: {}", filmId, userId);
+        likeFilmService.deleteLikeFromFilm(filmId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("==> Запрос на вывод популярных фильмов");
-        return filmService.getPopularFilms(count);
+    public ResponseEntity<Collection<Film>> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        log.info("==> Запрос на вывод популярных фильмов, количество: {}", count);
+        Collection<Film> popularFilms = filmService.getPopularFilms(count);
+        return ResponseEntity.ok(popularFilms);
     }
 }
