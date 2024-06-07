@@ -7,6 +7,14 @@
 *.zip
 *.tar.gz
 *.rar
+*.exe
+*.dll
+*.bin
+*.dat
+*.so
+*.o
+*.a
+*.lib
 hs_err_pid*
 out/
 target/
