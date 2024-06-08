@@ -15,6 +15,7 @@
 *.o
 *.a
 *.lib
+echo ".DS_Store"
 hs_err_pid*
 out/
 target/
@@ -51,4 +52,4 @@ build/
 .vscode/
 
 *.db
-db/*
+db/*.DS_Store
