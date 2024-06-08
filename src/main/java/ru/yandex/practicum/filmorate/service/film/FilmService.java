@@ -7,15 +7,11 @@ import java.util.Collection;
 public interface FilmService {
     Collection<Film> getAll();
 
-    Film get(long filmId);
+    Film getById(long filmId);
 
-    Film save(Film film);
+    Film create(Film film);
 
     Film update(Film film);
-
-    Film likeFilm(long filmId, long userId);
-
-    Film unlikeFilm(long filmId, long userId);
 
     Collection<Film> getPopularFilms(int count);
 }

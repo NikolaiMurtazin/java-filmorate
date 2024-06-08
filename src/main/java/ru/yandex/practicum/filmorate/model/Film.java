@@ -4,27 +4,29 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validator.genre.GenreConstraint;
-import ru.yandex.practicum.filmorate.validator.motionPictureAssociation.MotionPictureAssociationConstraint;
-import ru.yandex.practicum.filmorate.validator.realiseDate.RealiseDateConstraint;
 import ru.yandex.practicum.filmorate.validator.Update;
+import ru.yandex.practicum.filmorate.validator.realiseDate.RealiseDateConstraint;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
+@AllArgsConstructor
 public class Film {
+    private static final int FILM_DESCRIPTION_MAX_LENGTH = 200;
+
     @NotNull(groups = Update.class)
     private Long id;
 
-    @NotBlank(message = "Значение не может быть пустым")
+    @NotBlank(message = "Название не может быть пустым")
     private String title;
 
     @NotBlank(message = "Описание не может быть пустым")
-    @Size(max = 200, message = "Описание фильма не должно превышать 200 символов")
+    @Size(max = FILM_DESCRIPTION_MAX_LENGTH, message = "Описание фильма не должно превышать 200 символов")
     private String description;
 
     @NotNull
@@ -35,11 +37,7 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
-    @NotNull
-    @GenreConstraint
-    private List<String> genre; // ??? Проверить на работоспособность
+    private MPA mpa;
 
-    @NotNull
-    @MotionPictureAssociationConstraint
-    private String motionPictureAssociation; // ??? Проверить на работоспособность
+    private Collection<Genre> genres;
 }
