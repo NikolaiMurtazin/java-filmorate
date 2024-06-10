@@ -7,15 +7,18 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.Update;
 import ru.yandex.practicum.filmorate.validator.realiseDate.RealiseDateConstraint;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     private static final int FILM_DESCRIPTION_MAX_LENGTH = 200;
 
@@ -23,7 +26,7 @@ public class Film {
     private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
-    private String title;
+    private String name;
 
     @NotBlank(message = "Описание не может быть пустым")
     @Size(max = FILM_DESCRIPTION_MAX_LENGTH, message = "Описание фильма не должно превышать 200 символов")
@@ -39,5 +42,5 @@ public class Film {
 
     private MPA mpa;
 
-    private Collection<Genre> genres;
+    private Set<Genre> genres = new LinkedHashSet<>();
 }

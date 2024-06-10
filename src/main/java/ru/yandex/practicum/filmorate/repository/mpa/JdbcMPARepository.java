@@ -13,34 +13,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JdbcMPARepository implements MPARepository {
     private final NamedParameterJdbcOperations jdbc;
-    private final MPARowMapper mpaRowMapper = new MPARowMapper();
 
-    private static final String SQL_GET_ALL = """
-        SELECT
-            MPA_ID,
-            NAME
-        FROM
-            MPAS
-        """;
+    private static final String SQL_GET_ALL = "SELECT * FROM MPAS ORDER BY MPA_ID;";
 
-    private static final String SQL_GET_BY_ID = """
-        SELECT
-            MPA_ID,
-            NAME
-        FROM
-            MPAS
-        WHERE
-            MPA_ID = :mpaId
-        """;
+    private static final String SQL_GET_BY_ID = "SELECT * FROM MPAS WHERE MPA_ID = :mpaId";
 
     @Override
     public Collection<MPA> getAll() {
-        return jdbc.query(SQL_GET_ALL, mpaRowMapper);
+        return jdbc.query(SQL_GET_ALL, new MPARowMapper());
     }
 
     @Override
     public Optional<MPA> getById(long mpaId) {
         MapSqlParameterSource params = new MapSqlParameterSource("mpaId", mpaId);
-        return jdbc.query(SQL_GET_BY_ID, params, mpaRowMapper).stream().findFirst();
+        return jdbc.query(SQL_GET_BY_ID, params, new MPARowMapper()).stream().findFirst();
     }
 }

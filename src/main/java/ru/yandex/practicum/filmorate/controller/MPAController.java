@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.service.mpa.MPAService;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/mpas")
+@RequestMapping("/mpa")
 @Validated
 @Slf4j
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class MPAController {
 
     @GetMapping
     public Collection<MPA> getAll() {
-        log.info("==> Запрос на вывод всех фильмов");
+        log.info("==> Запрос на вывод всех возрастных рейтингов");
         return mpaService.getAll();
     }
 

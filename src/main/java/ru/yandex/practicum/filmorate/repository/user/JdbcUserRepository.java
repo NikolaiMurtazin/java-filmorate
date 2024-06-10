@@ -16,31 +16,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcOperations jdbc;
-    private final UserRowMapper userRowMapper = new UserRowMapper();
 
-    private static final String SQL_GET_ALL = """
-        SELECT
-            USER_ID,
-            LOGIN,
-            NAME,
-            EMAIL,
-            BIRTHDAY
-        FROM
-            USERS
-        """;
+    private static final String SQL_GET_ALL =  "SELECT * FROM USERS";
 
-    private static final String SQL_GET_BY_ID = """
-        SELECT
-            USER_ID,
-            LOGIN,
-            NAME,
-            EMAIL,
-            BIRTHDAY
-        FROM
-            USERS
-        WHERE
-            USER_ID = :userId
-        """;
+    private static final String SQL_GET_BY_ID = "SELECT * FROM USERS WHERE USER_ID = :userId";
 
     private static final String SQL_CREATE = """
         INSERT INTO USERS
@@ -61,12 +40,7 @@ public class JdbcUserRepository implements UserRepository {
         """;
 
     private static final String SQL_GET_COMMON_FRIENDS = """
-        SELECT
-            u.USER_ID,
-            u.LOGIN,
-            u.NAME,
-            u.EMAIL,
-            u.BIRTHDAY
+        SELECT u.*
         FROM
             USERS u
             JOIN FRIENDSHIPS f1 ON u.USER_ID = f1.FRIEND_ID
@@ -77,12 +51,7 @@ public class JdbcUserRepository implements UserRepository {
         """;
 
     private static final String SQL_GET_FRIENDS = """
-        SELECT
-            u.USER_ID,
-            u.LOGIN,
-            u.NAME,
-            u.EMAIL,
-            u.BIRTHDAY
+        SELECT u.*
         FROM
             USERS u
             JOIN FRIENDSHIPS f ON u.USER_ID = f.FRIEND_ID
@@ -92,13 +61,13 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public Collection<User> getAll() {
-        return jdbc.query(SQL_GET_ALL, userRowMapper);
+        return jdbc.query(SQL_GET_ALL, new UserRowMapper());
     }
 
     @Override
     public Optional<User> getById(long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
-        return jdbc.query(SQL_GET_BY_ID, params, userRowMapper).stream().findFirst();
+        return jdbc.query(SQL_GET_BY_ID, params, new UserRowMapper()).stream().findFirst();
     }
 
     @Override
@@ -132,12 +101,12 @@ public class JdbcUserRepository implements UserRepository {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", user.getId())
                 .addValue("friendId", friend.getId());
-        return jdbc.query(SQL_GET_COMMON_FRIENDS, params, userRowMapper);
+        return jdbc.query(SQL_GET_COMMON_FRIENDS, params, new UserRowMapper());
     }
 
     @Override
     public Collection<User> getFriends(User user) {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", user.getId());
-        return jdbc.query(SQL_GET_FRIENDS, params, userRowMapper);
+        return jdbc.query(SQL_GET_FRIENDS, params, new UserRowMapper());
     }
 }

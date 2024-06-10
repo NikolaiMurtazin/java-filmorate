@@ -15,12 +15,10 @@ import java.io.StringWriter;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-    StringWriter sw = new StringWriter();
-    PrintWriter pw = new PrintWriter(sw);
 
-    @ExceptionHandler
+    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+    public ErrorResponse handleMethodArgumentNotValidException(final Exception e) {
         log.info("Validation: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
@@ -36,6 +34,8 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {
         log.error("Error", e);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
         e.printStackTrace(pw);
         errorResponse.setStackTrace(sw.toString());

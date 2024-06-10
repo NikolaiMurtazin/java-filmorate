@@ -13,34 +13,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JdbcGenreRepository implements GenreRepository {
     private final NamedParameterJdbcOperations jdbc;
-    private final GenreRowMapper genreRowMapper = new GenreRowMapper();
 
-    private static final String SQL_GET_ALL = """
-        SELECT
-            GENRE_ID,
-            NAME
-        FROM
-            GENRES
-        """;
+    private static final String SQL_GET_ALL = "SELECT * FROM GENRES ORDER BY GENRE_ID;";
 
-    private static final String SQL_GET_BY_ID = """
-        SELECT
-            GENRE_ID,
-            NAME
-        FROM
-            GENRES
-        WHERE
-            GENRE_ID = :genreId
-        """;
+    private static final String SQL_GET_BY_ID = "SELECT * FROM GENRES WHERE GENRE_ID = :genreId";
 
     @Override
     public Collection<Genre> getAll() {
-        return jdbc.query(SQL_GET_ALL, genreRowMapper);
+        return jdbc.query(SQL_GET_ALL, new GenreRowMapper());
     }
 
     @Override
     public Optional<Genre> getById(long genreId) {
         MapSqlParameterSource params = new MapSqlParameterSource("genreId", genreId);
-        return jdbc.query(SQL_GET_BY_ID, params, genreRowMapper).stream().findFirst();
+        return jdbc.query(SQL_GET_BY_ID, params, new GenreRowMapper()).stream().findFirst();
     }
 }
