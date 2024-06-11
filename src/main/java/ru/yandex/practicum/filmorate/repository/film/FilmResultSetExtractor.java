@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.repository.film;
 
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.sql.ResultSet;
@@ -35,15 +34,6 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
                         .build();
 
                 filmMap.put(filmId, film);
-            }
-
-            int genreId = rs.getInt("GENRE_ID");
-            if (genreId > 0) {
-                Genre genre = Genre.builder()
-                        .id(genreId)
-                        .name(rs.getString("GENRES.NAME"))
-                        .build();
-                film.getGenres().add(genre);
             }
         }
 
