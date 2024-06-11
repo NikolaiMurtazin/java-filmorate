@@ -26,13 +26,13 @@ public class JdbcFilmRepository implements FilmRepository {
     private final NamedParameterJdbcOperations jdbc;
 
     private static final String GET_ALL = """
-        SELECT f.*, m.*
+        SELECT f.*, m.NAME
         FROM FILMS f
         LEFT JOIN MPAS m ON f.mpa_id = m.mpa_id
     """;
 
     private static final String SQL_GET_BY_ID = """
-        SELECT f.*, m.*
+        SELECT f.*, m.NAME
         FROM FILMS f
         LEFT JOIN MPAS m ON f.MPA_ID = m.MPA_ID
         WHERE f.FILM_ID = :filmId
@@ -58,12 +58,12 @@ public class JdbcFilmRepository implements FilmRepository {
         """;
 
     private static final String SQL_GET_POPULAR_FILMS = """
-        SELECT f.*, m.*
-        FROM FILMS f
-        LEFT JOIN FILM_LIKES fl ON f.FILM_ID = fl.FILM_ID
-        LEFT JOIN MPAS m ON f.MPA_ID = m.MPA_ID
+        SELECT f.*, m.NAME, COUNT(fl.USER_ID) as like_count
+        FROM films f
+        LEFT JOIN film_likes fl ON f.FILM_ID = fl.FILM_ID
+        LEFT JOIN mpas m ON f.MPA_ID = m.MPA_ID
         GROUP BY f.FILM_ID
-        ORDER BY COUNT(fl.USER_ID) DESC
+        ORDER BY like_count DESC
         LIMIT :count;
     """;
 
@@ -190,7 +190,9 @@ public class JdbcFilmRepository implements FilmRepository {
         List<Long> filmIds = Objects.requireNonNull(films).stream().map(Film::getId).collect(Collectors.toList());
         Map<Long, Set<Genre>> genres = getGenresForFilms(filmIds);
 
-        films.forEach(film -> film.setGenres(genres.getOrDefault(film.getId(), new HashSet<>())));
+        for (Film film : films) {
+            film.setGenres(genres.get(film.getId()));
+        }
 
         return films;
     }

@@ -6,15 +6,15 @@ import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
     @Override
-    public List<Film> extractData(ResultSet rs) throws SQLException {
-        HashMap<Long, Film> filmMap = new HashMap<>();
+    public LinkedList<Film> extractData(ResultSet rs) throws SQLException {
+        LinkedHashMap<Long, Film> filmMap = new LinkedHashMap<>();
 
         while (rs.next()) {
             long filmId = rs.getLong("FILM_ID");
@@ -37,6 +37,6 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
             }
         }
 
-        return new ArrayList<>(filmMap.values());
+        return new LinkedList<>(filmMap.values());
     }
 }
