@@ -4,68 +4,54 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.user.UserRepository;
+import ru.yandex.practicum.filmorate.repository.genre.GenreRepository;
+import ru.yandex.practicum.filmorate.repository.mpa.MPARepository;
 
 import java.util.Collection;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
     private final FilmRepository filmRepository;
+    private final MPARepository mpaRepository;
+    private final GenreRepository genreRepository;
 
-    private final UserRepository userRepository;
-
-    @Override
     public Collection<Film> getAll() {
         return filmRepository.getAll();
     }
 
-    @Override
-    public Film get(long filmId) {
-        return filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("Film not found with " + filmId));
+    public Film getById(long filmId) {
+        return filmRepository.getById(filmId)
+                .orElseThrow(() -> new NotFoundException("Film with id " + filmId + " not found"));
     }
 
-    @Override
-    public Film save(Film film) {
+    public Film create(Film film) {
+        checkGenresAndMPA(film);
         return filmRepository.create(film);
     }
 
-    @Override
     public Film update(Film film) {
-        long filmId = film.getId();
-        final Film saved = filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("Film not found with " + filmId));
-
+        getById(film.getId());
+        checkGenresAndMPA(film);
         return filmRepository.update(film);
     }
 
-    @Override
-    public Film likeFilm(long filmId, long userId) {
-        final Film film = filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("Film not found with " + filmId));
-
-        final User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-
-        return filmRepository.likeFilm(film, user);
-    }
-
-    @Override
-    public Film unlikeFilm(long filmId, long userId) {
-        final Film film = filmRepository.get(filmId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + filmId));
-
-        final User user = userRepository.get(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-
-        return filmRepository.unlikeFilm(film, user);
-    }
-
-    @Override
     public Collection<Film> getPopularFilms(int count) {
         return filmRepository.getPopularFilms(count);
+    }
+
+    private void checkGenresAndMPA(Film film) {
+        int mpaId = film.getMpa().getId();
+        Set<Genre> genres = film.getGenres();
+        for (Genre genre : genres) {
+            int genreId = genre.getId();
+            genreRepository.getById(genreId)
+                    .orElseThrow(() -> new IllegalArgumentException("Genre with id " + genreId + " not found"));
+        }
+        mpaRepository.getById(mpaId)
+                .orElseThrow(() -> new IllegalArgumentException("MPA with id " + mpaId + " not found"));
     }
 }
