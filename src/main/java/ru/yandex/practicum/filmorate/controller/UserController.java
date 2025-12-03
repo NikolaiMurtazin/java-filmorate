@@ -14,18 +14,31 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.Collection;
 
+/**
+ * REST Controller for managing {@link User} entities.
+ * <p>
+ * This controller handles user lifecycle operations (CRUD), social interactions (friends),
+ * and personalized user data like activity feeds and film recommendations.
+ * </p>
+ */
 @Validated
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
+
     private final UserService userService;
 
+    /**
+     * Retrieves all registered users.
+     *
+     * @return a collection of all users
+     */
     @GetMapping
     public Collection<User> getAll() {
         log.info("GET /users request");
@@ -34,6 +47,12 @@ public class UserController {
         return users;
     }
 
+    /**
+     * Retrieves a specific user by their unique identifier.
+     *
+     * @param userId the ID of the user to retrieve
+     * @return the requested user object
+     */
     @GetMapping("/{userId}")
     public User getById(@PathVariable Long userId) {
         log.info("GET /users/{} by ID {} request", userId, userId);
@@ -42,6 +61,15 @@ public class UserController {
         return user;
     }
 
+    /**
+     * Creates a new user.
+     * <p>
+     * The request body must contain valid user data.
+     * </p>
+     *
+     * @param user the user object to be created
+     * @return the created user with its assigned ID
+     */
     @PostMapping
     public User create(@Validated @RequestBody User user) {
         log.info("POST /users request: {}", user);
@@ -50,6 +78,12 @@ public class UserController {
         return createdUser;
     }
 
+    /**
+     * Updates an existing user's details.
+     *
+     * @param user the user object with updated data
+     * @return the updated user object
+     */
     @PutMapping
     public User update(@Validated @RequestBody User user) {
         log.info("PUT /users request: {}", user);
@@ -58,6 +92,11 @@ public class UserController {
         return updateUser;
     }
 
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the ID of the user to delete
+     */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id) {
         log.info("DELETE /users/{} request", id);
@@ -65,6 +104,12 @@ public class UserController {
         log.info("DELETE /users/{} response: success", id);
     }
 
+    /**
+     * Adds a user as a friend to another user.
+     *
+     * @param id       the ID of the user adding a friend
+     * @param friendId the ID of the user to be added as a friend
+     */
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("PUT /users/{}/friends/{} request", id, friendId);
@@ -72,6 +117,12 @@ public class UserController {
         log.info("PUT /users/{}/friends/{} response: success", id, friendId);
     }
 
+    /**
+     * Removes a friend from a user's friend list.
+     *
+     * @param id       the ID of the user removing a friend
+     * @param friendId the ID of the friend to remove
+     */
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("DELETE /users/{}/friends/{} request", id, friendId);
@@ -79,6 +130,12 @@ public class UserController {
         log.info("DELETE /users/{}/friends/{} response: success", id, friendId);
     }
 
+    /**
+     * Retrieves the list of friends for a specific user.
+     *
+     * @param id the ID of the user
+     * @return a collection of the user's friends
+     */
     @GetMapping("/{id}/friends")
     public Collection<User> getFriends(@PathVariable long id) {
         log.info("GET /users/{}/friends request", id);
@@ -87,6 +144,13 @@ public class UserController {
         return userFriends;
     }
 
+    /**
+     * Retrieves the list of mutual friends between two users.
+     *
+     * @param id      the ID of the first user
+     * @param otherId the ID of the second user
+     * @return a collection of users who are friends with both specified users
+     */
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         log.info("GET /users/{}/friends/common/{} request", id, otherId);
@@ -95,6 +159,15 @@ public class UserController {
         return commonFriends;
     }
 
+    /**
+     * Retrieves film recommendations for a user.
+     * <p>
+     * Recommendations are based on the likes of users with similar tastes.
+     * </p>
+     *
+     * @param userId the ID of the user to get recommendations for
+     * @return a collection of recommended {@link Film} objects
+     */
     @GetMapping("/{userId}/recommendations")
     public Collection<Film> getFilmRecommendations(@PathVariable long userId) {
         log.info("GET /users/{}/recommendations request", userId);
@@ -103,6 +176,15 @@ public class UserController {
         return recommendedFilms;
     }
 
+    /**
+     * Retrieves the activity feed (events) for a specific user.
+     * <p>
+     * The feed contains actions performed by the user, such as likes, friend additions, etc.
+     * </p>
+     *
+     * @param userId the ID of the user
+     * @return a collection of {@link Event} objects associated with the user
+     */
     @GetMapping("/{userId}/feed")
     public Collection<Event> getUserFeed(@PathVariable Long userId) {
         log.info("GET /users/{}/feed request", userId);

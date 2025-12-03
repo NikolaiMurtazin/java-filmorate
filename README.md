@@ -1,83 +1,105 @@
-# java-filmorate
+# 🎬 Filmorate — Social Platform for Film Rating
 
-Приложение, которое помогает выбрать фильм. Пользователи могут добавлять друг-друга в друзья, ставить фильмам лайки или
-дизлайки, оставлять отзывы после просмотра. Также возможен поиск фильма по различным параметрам: по жанру, режиссёру,
-популярности.
+## 🌟 Project Overview
 
-## Технологии
+**Filmorate** is a social service designed for users to rate movies, exchange opinions, manage friend lists, and receive personalized recommendations.
 
-- Java 11
-- Spring Boot
-- JDBC
-- Maven
-- Lombok
-- JUnit
+The project is implemented using the **Controller-Service-Repository (DAO)** architecture, relying on Spring JDBC for direct interaction with the database.
 
-## Возможности
-
-### Фильмы
-
-- Добавить фильм
-- Обновить фильм
-- Найти фильм по id
-- Поставить лайк фильму
-- Удалить лайк фильму
-- Найти самые популярные фильмы
-- Удалить фильм
-- Выполнить поиск фильмов по совпадению заданного текста с названием или режиссёром
-- Выполнить поиск фильмов по id режиссёра и остортировать по количеству лайков или году выхода фильма
-
-### Пользователи
-
-- Добавить пользователя
-- Обновить пользователя
-- Получить список всех пользователей
-- Найти пользователя по id
-- Добавить пользователя в друзья
-- Удалить пользователя из друзей
-- Найти друзей пользователя
-- Найти общих друзей пользователя
-- Удалить пользователя
-
-### Жанры
-
-- Получить список всех доступных жанров
-- Найти жанр по id
-
-### Возрастные рейтинги (MPA)
-
-- Найти рейтинг по id
-- Получить список всех возрастных рейтингов
-
-### Отзывы на фильм
-
-- Оставить отзыв
-- Обновить отзыв
-- Обновить отзыв
-- Получить список отзывов о фильме
-- Найти отзыв по id
-- Поставить лайк отзыву
-- Поставить дизлайк отзыву
-
-### Режиссёры
-
-- Получить список всех режиссёров
-- Найти режиссёра по id
-- Добавить режиссёра
-- Обновить данные о режиссёре
-- Добавить нового режиссёра
-- Удалить режиссёра по id
-
-## ER-диаграмма
-
-![filmorate](filmorate.png)
-
-## Запустить сервис можно в IntelliJ IDEA:
-
-Запустите приложение
-
-java-filmorate\src\main\java\ru\yandex\practicum\filmorate\FilmorateApplication -> "run"
+### Status
+| Metric | Value |
+| :--- | :--- |
+| API Version | v1 |
+| Language | Java 21 |
+| Build System | Maven |
+| Database | H2 (in-memory) |
 
 ---
 
+## 🛠️ Technology Stack
 
+| Category | Technologies |
+| :--- | :--- |
+| **Backend** | **Java 21**, **Spring Boot 3.2.4** |
+| **Data Access** | **Spring JDBC** (`NamedParameterJdbcOperations`) |
+| **Database** | **H2 Database** (for development) |
+| **Utilities** | **Lombok** (`@Data`, `@Slf4j`), **Jakarta Validation** |
+| **Logging** | **SLF4J/Logback**, **Zalando Logbook** (for HTTP traffic logging) |
+| **Testing** | JUnit 5, Mockito, Spring Boot Starter Test |
+
+---
+
+## ✨ Core Features
+
+### 👥 Users and Social Graph
+* **CRUD** operations for user profiles.
+* **Friendship**: Adding and removing friends.
+* Retrieval of **common friends** (mutual friends) between two users (optimized via SQL).
+* **Activity Feed**: Logging user actions (adding/removing friends, likes, reviews) to a chronological feed.
+
+### 🎞️ Films and Ratings
+* **CRUD** operations for films.
+* **Validation**: Ensuring films comply with **MPA** ratings and **Genre** data.
+* **Likes**: Users can add and remove likes, influencing popularity.
+* **Directors**: Full support for assigning and querying films by **Directors**.
+* **Search**: Searching films by **Title** and/or **Director** name.
+* **Popularity**: Retrieval of the top popular films with filtering by **Year** and **Genre**.
+* **Recommendations**: Personalized film suggestions based on similar user preferences (Collaborative Filtering).
+
+### ✍️ Reviews and Usefulness Score
+* **CRUD** operations for reviews.
+* Reviews are linked to a specific film and user.
+* **Usefulness Score**: Users can add likes and dislikes to reviews, dynamically calculating the overall usefulness score.
+
+---
+
+## 🚀 Installation and Launch
+
+To run the project locally, you must have **Java 21** and **Maven** installed.
+
+1.  **Clone the repository:**
+    ```bash
+    git clone <REPOSITORY_URL>
+    cd filmorate
+    ```
+
+2.  **Build the project:**
+    ```bash
+    ./mvnw clean install
+    ```
+
+3.  **Run the application:**
+    ```bash
+    java -jar target/filmorate-0.0.1-SNAPSHOT.jar
+    # OR: mvn spring-boot:run
+    ```
+
+4.  **Database Initialization:** The application uses **H2** in in-memory mode. The database schema (`schema.sql`) and initial reference data (`data.sql`) are loaded automatically by Spring Boot upon startup. The API is available at: `http://localhost:8080`.
+
+---
+
+## 🔗 Key API Endpoints
+
+| Resource | Method | URI | Description |
+| :--- | :--- | :--- | :--- |
+| **Users** | `GET` | `/users` | Get all users |
+| | `POST` | `/users` | Create a user |
+| | `GET` | `/users/{id}/friends/common/{otherId}` | Get mutual friends |
+| | `GET` | `/users/{id}/feed` | Get user activity feed |
+| **Films** | `GET` | `/films` | Get all films |
+| | `GET` | `/films/popular` | Get popular films (supports filters `genreId`, `year`) |
+| | `PUT` | `/films/{id}/like/{userId}` | Add a like to a film |
+| | `GET` | `/films/search?query=...&by=...` | Search for films |
+| **Reviews** | `POST` | `/reviews` | Create a new review |
+| | `PUT` | `/reviews/{id}/like/{userId}` | Add a like to a review (positive usefulness) |
+| **Reference** | `GET` | `/mpa` | Get all MPA ratings |
+| | `GET` | `/genres` | Get all genres |
+| | `GET` | `/directors` | Get all directors |
+
+---
+
+## 💻 ER diagram
+
+![filmorate](filmorate.png)
+
+---

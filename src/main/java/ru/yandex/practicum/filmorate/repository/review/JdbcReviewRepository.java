@@ -8,13 +8,22 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.SaveDataException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.repository.BaseJdbcRepository;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
+/**
+ * JDBC implementation of the {@link ReviewRepository} interface.
+ * <p>
+ * This class manages the persistence of film reviews and their ratings (likes/dislikes).
+ * It handles the calculation of the "useful" score for reviews by aggregating ratings.
+ * </p>
+ */
 @Repository
 @Primary
 public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements ReviewRepository {
@@ -23,6 +32,9 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         super(jdbc, mapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Review create(Review review) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -36,6 +48,7 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("userId", review.getUserId())
                 .addValue("content", review.getContent())
                 .addValue("isPositive", review.getIsPositive());
+
         jdbc.update(sql, params, keyHolder);
 
         Long id = keyHolder.getKeyAs(Long.class);
@@ -43,12 +56,15 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         if (id != null) {
             review.setReviewId(id);
         } else {
-            throw new SaveDataException("Не удалось сохранить данные:" + review);
+            throw new SaveDataException("Failed to save review data: " + review);
         }
 
         return review;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Review update(Review review) {
         final String sql = """
@@ -62,21 +78,35 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("content", review.getContent())
                 .addValue("isPositive", review.getIsPositive())
                 .addValue("reviewId", review.getReviewId());
-        jdbc.update(sql, params);
 
-        return getById(review.getReviewId()).get();
+        int rowsUpdated = jdbc.update(sql, params);
+
+        if (rowsUpdated == 0) {
+            throw new NotFoundException("Review with ID " + review.getReviewId() + " not found");
+        }
+
+        return getById(review.getReviewId())
+                .orElseThrow(() -> new NotFoundException("Review not found after update"));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Review> delete(long id) {
         Optional<Review> optionalReview = getById(id);
 
-        final String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = :reviewId;";
-        jdbc.update(sql, new MapSqlParameterSource("reviewId", id));
+        if (optionalReview.isPresent()) {
+            final String sql = "DELETE FROM REVIEWS WHERE REVIEW_ID = :reviewId;";
+            jdbc.update(sql, new MapSqlParameterSource("reviewId", id));
+        }
 
         return optionalReview;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Review> getById(long id) {
         try {
@@ -89,6 +119,9 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<Review> getReviewsByFilmId(Long filmId, int count) {
         final String sql = """
@@ -105,6 +138,9 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         return jdbc.query(sql, params, mapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<Review> getAllReviews(int count) {
         final String sql = """
@@ -117,27 +153,41 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         return jdbc.query(sql, new MapSqlParameterSource("count", count), mapper);
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addLikeToReview(long id, long userId) {
         addRatingToReview(id, userId, 1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addDislikeToReview(long id, long userId) {
         addRatingToReview(id, userId, -1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteLikeFromReview(long id, long userId) {
         deleteRatingFromReview(id, userId, 1);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteDislikeFromReview(long id, long userId) {
         deleteRatingFromReview(id, userId, -1);
     }
 
+    /**
+     * Adds a rating record (like or dislike) and recalculates utility.
+     */
     private void addRatingToReview(long reviewId, long userId, int rating) {
         final String sql = """
                 MERGE INTO REVIEW_RATINGS (REVIEW_ID, USER_ID, RATING)
@@ -154,6 +204,9 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
         updateReviewUseful(reviewId);
     }
 
+    /**
+     * Removes a rating record and recalculates utility.
+     */
     private void deleteRatingFromReview(long reviewId, long userId, int rating) {
         final String sql = """
                 DELETE FROM REVIEW_RATINGS
@@ -164,12 +217,20 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 .addValue("reviewId", reviewId)
                 .addValue("userId", userId)
                 .addValue("rating", rating);
+
         jdbc.update(sql, params);
         updateReviewUseful(reviewId);
     }
 
+    /**
+     * Recalculates and updates the 'useful' score for a review.
+     * <p>
+     * This denormalization step ensures that sorting by usefulness is performant.
+     * </p>
+     */
     private void updateReviewUseful(Long reviewId) {
         SqlParameterSource params = new MapSqlParameterSource().addValue("reviewId", reviewId);
+
         final String sqlGetUseful = """
                 SELECT COALESCE(SUM(RATING), 0)
                 FROM REVIEW_RATINGS
@@ -177,11 +238,12 @@ public class JdbcReviewRepository extends BaseJdbcRepository<Review> implements 
                 """;
 
         Integer useful = jdbc.queryForObject(sqlGetUseful, params, Integer.class);
+        if (useful == null) {
+            useful = 0;
+        }
 
-        SqlParameterSource parameterSource = new MapSqlParameterSource()
-                .addValue("reviewId", reviewId)
-                .addValue("useful", useful != null ? useful : 0);
-        jdbc.update("UPDATE REVIEWS SET USEFUL = :useful WHERE REVIEW_ID = :reviewId", parameterSource);
+        final String sqlUpdate = "UPDATE REVIEWS SET USEFUL = :useful WHERE REVIEW_ID = :reviewId";
+
+        jdbc.update(sqlUpdate, Map.of("reviewId", reviewId, "useful", useful));
     }
 }
-

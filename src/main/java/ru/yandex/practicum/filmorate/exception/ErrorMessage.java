@@ -1,12 +1,9 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@AllArgsConstructor
-public class ErrorMessage {
-    private String error;
+/**
+ * Data Transfer Object (DTO) representing an error response body.
+ *
+ * @param error the description of the error
+ */
+public record ErrorMessage(String error) {
 }

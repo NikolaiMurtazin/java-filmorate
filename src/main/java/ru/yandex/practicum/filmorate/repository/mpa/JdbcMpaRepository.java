@@ -12,24 +12,37 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * JDBC implementation of the {@link MpaRepository} interface.
+ * <p>
+ * This repository handles the retrieval of Motion Picture Association (MPA) ratings
+ * from the database. It is a read-only repository as MPA ratings are static reference data.
+ * </p>
+ */
 @Repository
 public class JdbcMpaRepository extends BaseJdbcRepository<Mpa> implements MpaRepository {
+
     public JdbcMpaRepository(NamedParameterJdbcOperations jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Mpa> getById(int mpaId) {
         try {
-        String sqlQuery = "SELECT * FROM MPA WHERE MPA_ID = :mpaId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("mpaId", mpaId);
-        return Optional.ofNullable(jdbc.queryForObject(sqlQuery, params, mapper));
+            String sqlQuery = "SELECT * FROM MPA WHERE MPA_ID = :mpaId";
+
+            return Optional.ofNullable(jdbc.queryForObject(sqlQuery, Map.of("mpaId", mpaId), mapper));
         } catch (EmptyResultDataAccessException ignored) {
             return Optional.empty();
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<Mpa> getAll() {
         String sqlQuery = "SELECT * FROM MPA";
